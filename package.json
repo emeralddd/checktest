@@ -3,9 +3,17 @@
   "version": "1.0.0",
   "description": "",
   "main": "run.js",
+  "bin":"run.js",
+  "pkg": {
+    "assets": ["default/*"],
+    "targets": ["node16-win-x64"]
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "EMERALD",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "pkg": "^5.5.1"
+  }
 }

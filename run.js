@@ -1,21 +1,23 @@
-const fs = require('fs')
 const { execFileSync } = require('child_process')
-const config = require('./config.json')
 const {readdir} = require('fs/promises')
+const {existsSync, mkdirSync, copyFileSync, writeFileSync, readFileSync, openSync} = require('fs')
+const path = require('path')
 
 const findCPP = async () => {
-    const files = await readdir(`./`)
+    const files = await readdir(`./sources`)
     const cppfiles = files.filter(file => file.split('.').pop() === 'cpp')
+    let res = '!'
     for(let file of cppfiles) {
         file = file.split('.cpp')[0]
         if(file !== 'inputRandom' && file !== 'outputSolve') {
-            return file
+            res=file
         }
     }
+    return res
 }
 
 const compilie = (fileName) => {
-    execFileSync('g++',['-g','-std=c++14',`${fileName}.CPP`,'-o',`${fileName}.exe`])
+    execFileSync('g++',['-g','-std=c++14',`./sources/${fileName}.CPP`,'-o',`./execute/${fileName}.exe`])
 }
 
 const compilieTestGen = async () => {
@@ -23,14 +25,49 @@ const compilieTestGen = async () => {
     compilie('outputSolve')
 }
 
+const checkExist = () => {
+    if(!existsSync('./execute')) {
+        mkdirSync('./execute')
+    }
+    
+    if(!existsSync('./execute/config.txt')) {
+        openSync('./execute/config.txt','w')
+    }
+
+    if(!existsSync('./settings')) {
+        mkdirSync('./settings')
+    }
+
+    if(!existsSync('./settings/config.json')) {
+        const sourceData = readFileSync(path.join(__dirname,'./default/config.json'), 'utf-8')
+        writeFileSync('./settings/config.json', sourceData, 'utf-8')
+    }
+
+    if(!existsSync('./sources')) {
+        mkdirSync('./sources')
+    }
+
+    if(!existsSync('./sources/inputRandom.cpp')) {
+        const sourceData = readFileSync(path.join(__dirname,'./default/inputRandom.cpp'), 'utf-8')
+        writeFileSync('./sources/inputRandom.cpp', sourceData, 'utf-8')
+    }
+
+    if(!existsSync('./sources/outputSolve.cpp')) {
+        const sourceData = readFileSync(path.join(__dirname,'./default/outputSolve.cpp'), 'utf-8')
+        writeFileSync('./sources/outputSolve.cpp', sourceData, 'utf-8')
+    }
+}
+
 const run = async () => {
+    checkExist()
+    const config = require('./settings/config.json')
     const problemName = await findCPP()
     if(problemName==='!') {
         console.log(`Khong tim duoc bai tap!`)
         return
     }
     console.log(`Da phat hien bai lam: ${problemName}`)
-    fs.writeFileSync('config.txt',problemName)
+    writeFileSync('./execute/config.txt',problemName)
 
     console.log(`Tao file RUN he thong!`)
     await compilieTestGen()
@@ -41,12 +78,12 @@ const run = async () => {
 
     for(let i=1; i<=config.tests; i++) {
         console.log(`Dang kiem tra Test ${i}`)
-        execFileSync(`./inputRandom`)
-        execFileSync(`./outputSolve`)
-        execFileSync(`./${problemName}`)
+        execFileSync(`inputRandom`,{"cwd":"execute"})
+        execFileSync(`outputSolve`,{"cwd":"execute"})
+        execFileSync(`${problemName}`,{"cwd":"execute"})
 
-        const judgeOut = fs.readFileSync(`sampleOutput.txt`, 'utf-8')
-        const candidateOut = fs.readFileSync(`${problemName}.OUT`, 'utf-8')
+        const judgeOut = readFileSync(`./execute/sampleOutput.txt`, 'utf-8')
+        const candidateOut = readFileSync(`./execute/${problemName}.OUT`, 'utf-8')
 
         if(judgeOut === candidateOut) {
             console.log(`Test ${i} passed!`)
