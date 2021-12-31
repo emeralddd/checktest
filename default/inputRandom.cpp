@@ -2,9 +2,9 @@
 #include <bits/stdc++.h>
 using namespace std;
 /// RANDOM CODE
-long long random(l2 l, l2 r)
+long long random(long long l, long long r)
 {
-    l2 x = 1LL * rand() * rand() * rand() + 1LL * rand() * rand() + rand();
+    long long x = 1LL * rand() * rand() * rand() + 1LL * rand() * rand() + rand();
     return (x % (r - l + 1) + l);
 }
 string NAME;
