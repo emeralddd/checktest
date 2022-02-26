@@ -29,7 +29,7 @@ const checkExist = () => {
     if(!existsSync('./execute')) {
         mkdirSync('./execute')
     }
-    
+
     if(!existsSync('./execute/config.txt')) {
         openSync('./execute/config.txt','w')
     }
@@ -76,9 +76,9 @@ const run = async () => {
     compilie(problemName)
     console.log(`Bien dich thanh cong!`)
 
-    for(let i=1; i<=config.tests; i++) {
-        console.log(`Dang kiem tra Test ${i}`)
-        execFileSync(`inputRandom`,{"cwd":"execute"})
+    for(let i=1; i>=1; i++) {
+        //console.log(`Dang kiem tra Test ${i}`)
+        writeFileSync(`./execute/${problemName}.INP`,`${i}`)
         execFileSync(`outputSolve`,{"cwd":"execute"})
         execFileSync(`${problemName}`,{"cwd":"execute"})
 
